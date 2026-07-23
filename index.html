@@ -1,61 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>demo alert</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anti-Ragging Cell — Incoming Alert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;
+    --surface:#131c30;
+    --surface-2:#1c2740;
+    --line:#263153;
+    --text:#f1f3f6;
+    --muted:#8c97ac;
+    --alert:#e8483c;
+    --calm:#34c7b4;
+    --calm-dim:#1c5c54;
+    --warn:#f2b544;
+    --radius:18px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background: radial-gradient(circle at 50% -10%, #17233d 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk',sans-serif; margin:0; }
+  .mono{ font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em; }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  .wrap{ max-width:560px; margin:0 auto; padding:28px 20px 60px; }
+
+  .topbar{ display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+  .topbar .mark{
+    width:34px; height:34px; border-radius:10px;
+    background:linear-gradient(155deg, var(--calm), var(--calm-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:15px; color:#04211d; flex-shrink:0;
+  }
+  .topbar .name{ font-weight:600; font-size:15.5px; }
+  .topbar .sub{ font-size:11.5px; color:var(--muted); margin-top:-1px; }
+
+  /* ---- populated state ---- */
+  .status-row{
+    display:flex; align-items:center; gap:8px; margin-bottom:18px;
+  }
+  .status-dot{
+    width:9px; height:9px; border-radius:50%; background:var(--alert);
+    box-shadow:0 0 0 0 rgba(232,72,60,.5); animation:pulse 2.2s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(232,72,60,.45); }
+    70%{ box-shadow:0 0 0 10px rgba(232,72,60,0); }
+    100%{ box-shadow:0 0 0 0 rgba(232,72,60,0); }
+  }
+  .status-row span{ font-size:12.5px; color:#ffb4ad; text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+
+  h1.headline{ font-size:23px; line-height:1.3; margin-bottom:6px; }
+  .headline .id{ color:var(--calm); }
+  .lede{ color:var(--muted); font-size:14px; line-height:1.55; margin-bottom:24px; max-width:46ch; }
+
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px 20px 6px; margin-bottom:16px;
+  }
+  .field{
+    display:flex; justify-content:space-between; gap:16px;
+    padding:13px 0; border-bottom:1px solid var(--line);
+  }
+  .field:last-child{ border-bottom:none; }
+  .field .k{ font-size:12.5px; color:var(--muted); flex-shrink:0; padding-top:1px; }
+  .field .v{ font-size:14px; text-align:right; word-break:break-word; }
+  .field .v.mono{ font-size:13px; }
+  .field .v.empty{ color:var(--muted); font-style:italic; }
+
+  .identity-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--calm);
+    background:rgba(52,199,180,.12); border:1px solid rgba(52,199,180,.3);
+    padding:5px 10px; border-radius:999px;
+  }
+
+  .details-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; margin-bottom:16px;
+  }
+  .details-card .k{ font-size:12.5px; color:var(--muted); margin-bottom:8px; display:block; }
+  .details-card p{ font-size:14.5px; line-height:1.6; margin:0; white-space:pre-wrap; }
+
+  .map-link{
+    display:inline-flex; align-items:center; gap:6px; color:#93C5FD; text-decoration:none;
+    font-size:13px; font-weight:600; margin-top:2px;
+  }
+
+  .next-steps{
+    border:1px dashed var(--line); border-radius:var(--radius); padding:16px 18px; margin-bottom:20px;
+  }
+  .next-steps .k{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; margin-bottom:10px; }
+  .next-steps ol{ margin:0; padding-left:18px; font-size:13.5px; color:var(--text); line-height:1.8; }
+  .next-steps li::marker{ color:var(--calm); font-family:'IBM Plex Mono',monospace; }
+
+  .demo-note{
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(242,181,68,.08); border:1px solid rgba(242,181,68,.35); border-radius:var(--radius);
+    padding:14px 16px; font-size:12px; color:var(--muted); line-height:1.55;
+  }
+  .demo-note b{ color:var(--warn); }
+
+  /* ---- empty state ---- */
+  .empty{
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:14vh 10px 0; gap:14px;
+  }
+  .empty .ring{
+    width:64px; height:64px; border-radius:50%; border:2px dashed var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--muted);
+  }
+  .empty h2{ font-size:19px; }
+  .empty p{ color:var(--muted); font-size:13.5px; max-width:34ch; line-height:1.6; margin:0; }
+  .empty .mono{ font-size:11.5px; background:var(--surface); border:1px solid var(--line); padding:10px 14px; border-radius:10px; color:var(--muted); max-width:100%; overflow-wrap:anywhere; }
+</style>
 </head>
 <body>
-<audio id="alarmSound">
-    <source src="alarm.mp3" type="audio/mpeg">
-</audio>
-<div class="container">
-
-    <h1>🚨 EMERGENCY SOS ALERT</h1>
-
-    <div class="status-box">
-        <h2>Alert Status</h2>
-        <p id="status1">Sending Location...</p>
-        <p id="status2">Uploading Audio...</p>
-        <p id="status3">Uploading Video...</p>
-        <p id="status4">Notifying Admin...</p>
+<div class="wrap">
+  <div class="topbar">
+    <div class="mark">R</div>
+    <div>
+      <div class="name">Anti-Ragging Cell</div>
+      <div class="sub">Incoming alerts from സുരക്ഷ മിത്രം</div>
     </div>
+  </div>
 
-    <div class="card">
-        <h2>Location Details</h2>
-        <p><strong>Latitude:</strong> <span id="latitude">Loading...</span></p>
-        <p><strong>Longitude:</strong> <span id="longitude">Loading...</span></p>
-
-        <a id="mapsLink" target="_blank">
-            View Location on Google Maps
-        </a>
-    </div>
-
-    <div class="card">
-        <h2>Time of Alert</h2>
-        <p id="time"></p>
-    </div>
-
-    <div class="card">
-        <h2>Audio Recording</h2>
-
-        <audio controls>
-            <source src="audio.mp3" type="audio/mpeg">
-            Your browser does not support audio.
-        </audio>
-    </div>
-
-    <div class="card">
-        <h2>Video Recording</h2>
-
-        <video width="100%" controls>
-            <source src="video.mp4" type="video/mp4">
-            Your browser does not support video.
-        </video>
-    </div>
-
+  <div id="content"></div>
 </div>
 
-<script src="script.js"></script>
+<script>
+  function esc(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
 
+  function fieldRow(label, value, opts){
+    opts = opts || {};
+    if (!value){
+      return `<div class="field"><span class="k">${esc(label)}</span><span class="v empty">Not provided</span></div>`;
+    }
+    const cls = opts.mono ? 'v mono' : 'v';
+    return `<div class="field"><span class="k">${esc(label)}</span><span class="${cls}">${esc(value)}</span></div>`;
+  }
+
+  function render(){
+    const params = new URLSearchParams(window.location.search);
+    const reportId = params.get('reportId');
+    const content = document.getElementById('content');
+
+    if (!reportId){
+      content.innerHTML = `
+        <div class="empty">
+          <div class="ring">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          </div>
+          <h2>Waiting for an alert</h2>
+          <p>This page displays report details it receives via link — nothing has come through yet on this URL.</p>
+          <div class="mono">?reportId=RKS-XXXXX&amp;time=...&amp;location=...</div>
+        </div>`;
+      return;
+    }
+
+    const time = params.get('time');
+    const timeDisplay = time ? new Date(time).toLocaleString() : '';
+    const location = params.get('location') || '';
+    const kind = params.get('kind') || '';
+    const details = params.get('details') || '';
+
+    const kindLabel = { audio: 'Audio clip (on reporter\'s device)', video: 'Video clip (on reporter\'s device)', text: 'Written report only' }[kind] || '';
+
+    const mapMatch = location.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+    const mapLink = mapMatch ? `<a class="map-link" href="https://maps.google.com/?q=${mapMatch[1]},${mapMatch[2]}" target="_blank" rel="noopener">Open in Maps ↗</a>` : '';
+
+    content.innerHTML = `
+      <div class="status-row"><span class="status-dot"></span><span>New alert</span></div>
+      <h1 class="headline">Report <span class="id mono">${esc(reportId)}</span> received</h1>
+      <p class="lede">Sent anonymously through Suraksha Mithram's SOS button. No name or contact detail was included — respond using the report ID only.</p>
+
+      <div class="card">
+        ${fieldRow('Time', timeDisplay)}
+        ${fieldRow('Location', location)}
+        ${mapLink ? `<div class="field"><span class="k">Map</span><span class="v">${mapLink}</span></div>` : ''}
+        ${fieldRow('Evidence', kindLabel)}
+        <div class="field">
+          <span class="k">Identity</span>
+          <span class="v"><span class="identity-badge">🛡 Withheld</span></span>
+        </div>
+      </div>
+
+      ${details ? `
+      <div class="details-card">
+        <span class="k">Details</span>
+        <p>${esc(details)}</p>
+      </div>` : ''}
+
+      <div class="next-steps">
+        <div class="k">Suggested next steps</div>
+        <ol>
+          <li>Log report ID <strong class="mono">${esc(reportId)}</strong> in the committee register.</li>
+          <li>Cross-check location and time against hostel/CCTV logs if available.</li>
+          <li>If evidence was recorded, follow up through the reporter's chosen channel — the reporter controls if and how it's shared.</li>
+          <li>Convene the anti-ragging committee per institution protocol.</li>
+        </ol>
+      </div>
+
+      <div class="demo-note">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+        <div><b>Demo page.</b> This reads details straight from the link's URL parameters — nothing is stored or sent anywhere. A real deployment would have this page's own backend receive and log the alert server-side instead.</div>
+      </div>
+    `;
+  }
+
+  render();
+</script>
 </body>
 </html>
