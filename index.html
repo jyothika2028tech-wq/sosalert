@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>demo alert</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<audio id="alarmSound">
+    <source src="alarm.mp3" type="audio/mpeg">
+</audio>
+<div class="container">
+
+    <h1>🚨 EMERGENCY SOS ALERT</h1>
+
+    <div class="status-box">
+        <h2>Alert Status</h2>
+        <p id="status1">Sending Location...</p>
+        <p id="status2">Uploading Audio...</p>
+        <p id="status3">Uploading Video...</p>
+        <p id="status4">Notifying Admin...</p>
+    </div>
+
+    <div class="card">
+        <h2>Location Details</h2>
+        <p><strong>Latitude:</strong> <span id="latitude">Loading...</span></p>
+        <p><strong>Longitude:</strong> <span id="longitude">Loading...</span></p>
+
+        <a id="mapsLink" target="_blank">
+            View Location on Google Maps
+        </a>
+    </div>
+
+    <div class="card">
+        <h2>Time of Alert</h2>
+        <p id="time"></p>
+    </div>
+
+    <div class="card">
+        <h2>Audio Recording</h2>
+
+        <audio controls>
+            <source src="audio.mp3" type="audio/mpeg">
+            Your browser does not support audio.
+        </audio>
+    </div>
+
+    <div class="card">
+        <h2>Video Recording</h2>
+
+        <video width="100%" controls>
+            <source src="video.mp4" type="video/mp4">
+            Your browser does not support video.
+        </video>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
